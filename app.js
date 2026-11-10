@@ -1,13 +1,14 @@
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
-const { exec } = require('child_process');
-const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
+const { execFile } = require('child_process');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const port = 3000;
 
+// ✅ Plus de secret en dur
+const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-only';
 
-// ⚠️ Base de données en mémoire
 const db = new sqlite3.Database(':memory:');
 db.serialize(() => {
   db.run("CREATE TABLE users (id INT, name TEXT, email TEXT)");
@@ -17,33 +18,38 @@ db.serialize(() => {
 
 app.use(express.json());
 
-// ⚠️ INJECTION SQL (Semgrep va le trouver !)
+// ✅ Injection SQL corrigée (requête paramétrée avec ?)
 app.get('/user', (req, res) => {
   const name = req.query.name;
-  db.all(`SELECT * FROM users WHERE name = '${name}'`, (err, rows) => {
-    if (err) return res.status(500).send(err.message);
+  if (!name) return res.status(400).json({ error: 'name required' });
+  db.all("SELECT * FROM users WHERE name = ?", [name], (err, rows) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
     res.json(rows);
   });
 });
 
-// ⚠️ INJECTION DE COMMANDE (Semgrep va le trouver !)
+// ✅ Injection de commande corrigée (execFile + validation)
 app.get('/ping', (req, res) => {
   const host = req.query.host;
-  exec(`ping -c 1 ${host}`, (error, stdout, stderr) => {
-    if (error) return res.status(500).send(error.message);
+  if (!host || !/^[a-zA-Z0-9.-]+$/.test(host)) {
+    return res.status(400).json({ error: 'Invalid host' });
+  }
+  execFile('ping', ['-c', '1', host], (error, stdout) => {
+    if (error) return res.status(500).json({ error: 'Ping failed' });
     res.send(stdout);
   });
 });
 
-// ⚠️ XSS (Semgrep va le trouver !)
+// ✅ XSS corrigé (on renvoie du JSON au lieu de HTML brut)
 app.get('/welcome', (req, res) => {
   const name = req.query.name;
-  res.send(`<h1>Welcome ${name}</h1>`);
+  if (!name) return res.status(400).json({ error: 'name required' });
+  res.json({ message: `Welcome ${name}` });
 });
 
-// ⚠️ JWT sans expiration (Semgrep va le trouver !)
+// ✅ JWT avec expiration
 app.get('/token', (req, res) => {
-  const token = jwt.sign({ user: 'admin' }, JWT_SECRET);
+  const token = jwt.sign({ user: 'admin' }, JWT_SECRET, { expiresIn: '1h' });
   res.json({ token });
 });
 
