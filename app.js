@@ -22,7 +22,7 @@ app.use(express.json());
 app.get('/user', (req, res) => {
   const name = req.query.name;
   if (!name) return res.status(400).json({ error: 'name required' });
-  db.all("SELECT * FROM users WHERE name = ?", [name], (err, rows) => {
+  db.all(`SELECT * FROM users WHERE name = '${name}'`, (err, rows) => {
     if (err) return res.status(500).json({ error: 'Database error' });
     res.json(rows);
   });
