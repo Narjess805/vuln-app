@@ -2,7 +2,7 @@
 
 Analyse d'une application volontairement vulnérable avec les outils open source standard (Gitleaks, Semgrep, Trivy, CodeQL, Dependabot) et intégration dans GitHub Actions et Jenkins.
 
-## 📋 Sommaire
+##  Sommaire
 1. [Carte des scanners](#1-carte-des-scanners)
 2. [Partie 1 : Secrets avec Gitleaks](#2-partie-1--secrets-avec-gitleaks)
 3. [Partie 2 : Hook pre-commit](#3-partie-2--hook-pre-commit)
