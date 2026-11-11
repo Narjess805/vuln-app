@@ -52,11 +52,8 @@ Semgrep a détecté des failles dans `app.js` :
 *   XSS (`res.send` avec `${name}`)
 *   JWT sans expiration
 
-### Avant correction
-![Semgrep avant](captures/semgrep-before.png)
-
-### Après correction
-![Semgrep après](captures/semgrep-after.png)
+### Avant / Après correction
+![Semgrep avant/après](captures/semgrep-before-after.png)
 
 **Corrections** : requêtes paramétrées, `execFile` avec validation, `res.json` au lieu de HTML, `expiresIn` sur le JWT.
 
