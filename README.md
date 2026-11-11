@@ -107,7 +107,7 @@ Ajout des stages `Security` (Gitleaks, Semgrep, npm audit) et `Image scan` (Triv
 
 ### Pipeline vert (faille corrigée)
 
-![Jenkins vert](docs/jenkins-vert.png)
+![Jenkins vert](captures/jenkins-vert.png)
 
 ---
 
